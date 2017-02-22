@@ -14,8 +14,10 @@
 			date = new Date();
 		} else if (year instanceof DateTime || year instanceof Date) {
 			date = new Date(year.getTime());
+		} else if(arguments.length > 1) {
+			date = new Date(year, month, day || 0, hours || 0, minutes || 0, second || 0, milliseconds || 0);
 		} else {
-			date = new Date(year, month, day, hours, minutes, second, milliseconds);
+			date = new Date(year);
 		}
 
 		this._date = date;
@@ -28,10 +30,6 @@
 
 		get month() {
 			return this.getMonth();
-		},
-
-		get week() {
-			return this.getWeek();
 		},
 
 		get date() {
@@ -54,6 +52,10 @@
 			return this.getMilliseconds();
 		},
 
+		get time() {
+			return this.getTime();
+		},
+
 		//setters
 		set year(v) {
 			this.setFullYear(v);
@@ -61,10 +63,6 @@
 
 		set month(v) {
 			this.setMonth(v);
-		},
-
-		set week(v) {
-			this.setWeek(v);
 		},
 
 		set date(v) {
@@ -87,6 +85,10 @@
 			this.setMilliseconds(v);
 		},
 
+		set time(v) {
+			this.setTime(v);
+		},
+
 		//add
 		addYears: function (y, m, d, h, mi, s, ms) {
 			add(this, y, m, d, h, mi, s, ms);
@@ -95,14 +97,6 @@
 
 		addMonths: function (m, d, h, mi, s, ms) {
 			add(this, 0, m, d, h, mi, s, ms);
-			return this;
-		},
-
-		addWeeks(w, d, h, mi, s, ms) {
-			d = d || 0;
-			d += w * 7;
-
-			add(this, 0, 0, d, h, mi, s, ms);
 			return this;
 		},
 
@@ -140,10 +134,6 @@
 			return date.month - this.month;
 		},
 
-		diffWeeks: function (date) {
-			return date.week - this.week;
-		},
-
 		diffDays: function (date) {
 			return date.date - this.date;
 		},
@@ -171,10 +161,6 @@
 
 		diffInMonths: function (date, round) {
 			return diffIn(date, this, 2628000000, round);
-		},
-
-		diffInWeeks: function (date, round) {
-			return diffIn(date, this, 604800000, round);
 		},
 
 		diffInDays: function (date, round) {
@@ -223,31 +209,23 @@
 			return first.diffInDays(this, true);
 		},
 
-		getWeek: function () {
-			let first = this.clone().setMonth(0, 1),
-				diff = (7 - first.getDay()) % 7;
-
-			first.addDays(diff);
-			return Math.ceil((this.getTime() - first.getTime()) / 604800000);
-		},
-
 		setDayOfYear: function (d, h, mi, s, ms) {
 			let time = this.clone().setMonth(0, d, h, mi, s, ms).getTime();
 			this.setTime(time);
 			return this;
-		},
-
-		setWeek: function (w, d, h, mi, s, ms) {
-			d = d || 0;
-			d += w * 7;
-
-			this.setDayOfYear(d, h, mi, s, ms);
-			return this;
 		}
 	};
 
+	DateTime.now = function () {
+		return Date.now();
+	};
+
 	DateTime.today = function () {
-		return new DateTime().setHours(0, 0, 0, 0);
+		return DateTime.get().setHours(0, 0, 0, 0);
+	};
+
+	DateTime.todayUTC = function () {
+		return DateTime.getUTC().setHours(0, 0, 0, 0);
 	};
 
 	DateTime.get = function (year, month, day, hours, minutes, second, milliseconds) {
@@ -266,7 +244,7 @@
 		}
 	};
 
-	DateTime.formatter = function (date, format) {
+	DateTime.format = function (date, format) {
 		return date.format(format);
 	};
 
@@ -280,16 +258,9 @@
 		'getMonth',
 		'getSeconds',
 		'getTime',
-		'getUTCDate',
-		'getUTCDay',
-		'getUTCFullYear',
-		'getUTCHours',
-		'getUTCMilliseconds',
-		'getUTCMinutes',
-		'getUTCMonth',
-		'getUTCSeconds',
 		'toJSON',
-		'valueOf'
+		'valueOf',
+		'toString'
 	].forEach(function (method) {
 		DateTime.prototype[method] = function () {
 			return this._date[method].apply(this._date, arguments);
@@ -304,14 +275,7 @@
 		'setMinutes',
 		'setMonth',
 		'setSeconds',
-		'setTime',
-		'setUTCDate',
-		'setUTCFullYear',
-		'setUTCHours',
-		'setUTCMilliseconds',
-		'setUTCMinutes',
-		'setUTCMonth',
-		'setUTCSeconds'
+		'setTime'
 	].forEach(function (method) {
 		DateTime.prototype[method] = function () {
 			this._date[method].apply(this._date, arguments);
@@ -357,8 +321,8 @@
 	}
 
 	function UTCDiff(time, colon) {
-		let utcHDiff = time.getHours() - time.getUTCHours(),
-			utcMDiff = time.getMinutes() - time.getUTCMinutes(),
+		let utcHDiff = time._date.getHours() - time._date.getUTCHours(),
+			utcMDiff = time._date.getMinutes() - time._date.getUTCMinutes(),
 			negative = ((utcMDiff < 0 && utcHDiff <= 0) || utcHDiff < 0) ? '-' : '+';
 
 		return negative + addNull(utcHDiff) + (colon ? ':' : '') + addNull(utcMDiff);
@@ -421,10 +385,6 @@
 				case '{ZZ}':
 				case '{XX}':
 					return UTCDiff(this, true);
-				case '{w}':
-					return this.getWeek();
-				case '{W}':
-					return addNull(this.getWeek());
 				case '{G}':
 					return this.getFullYear() > 0 ? 'AD' : 'CE';
 				case '{D}':

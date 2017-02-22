@@ -1,6 +1,6 @@
 {
-	"name": "DateTime",
-	"version": "0.1.0",
+	"name": "extended-date",
+	"version": "0.1.1",
 	"author": "Wszerad",
 	"license": "MIT",
 	"main": "DateTime.js",

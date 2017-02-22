@@ -9,7 +9,6 @@ describe('DateTime', function(){
 		assert.strictEqual(base * 1, 1267825517123, 'Time');
 		assert.strictEqual(base.year, 2010, 'Year');
 		assert.strictEqual(base.month, 2, 'Month');
-		assert.strictEqual(base.week, 9, 'Week');
 		assert.strictEqual(base.date, 5, 'Date');
 		assert.strictEqual(base.hours, 22, 'Hour');
 		assert.strictEqual(base.minutes, 45, 'Minute');
@@ -26,28 +25,25 @@ describe('DateTime', function(){
 		base.month -= 5;
 		assert.strictEqual(base * 1, 1317847517123, 'Month');
 
-		base.week -= 2;
-		assert.strictEqual(base * 1, 1316810717123, 'Week');
-
-		base.date += 17;
-		assert.strictEqual(base * 1, 1318279517123, 'Date');
+		base.date += 8;
+		assert.strictEqual(base * 1, 1318538717123, 'Date');
 
 		base.hours += 10;
-		assert.strictEqual(base * 1, 1318315517123, 'Hour');
+		assert.strictEqual(base * 1, 1318574717123, 'Hour');
 
 		base.minutes -= 20;
-		assert.strictEqual(base * 1, 1318314317123, 'Minute');
+		assert.strictEqual(base * 1, 1318573517123, 'Minute');
 
 		base.seconds += 20;
-		assert.strictEqual(base * 1, 1318314337123, 'Second');
+		assert.strictEqual(base * 1, 1318573537123, 'Second');
 
 		base.milliseconds += 120;
-		assert.strictEqual(base * 1, 1318314337243, 'Millisecond');
+		assert.strictEqual(base * 1, 1318573537243, 'Millisecond');
 	});
 
 	it('.format', function(){
-		var formatString = '{yy} {M} {MM} {MMM} {MMMM} {d} {dd} {E} {EEE} {EEEE} {h} {hh} {H} {HH} {a} {m} {mm} {s} {ss} {sss} {ssss} {z} {zz} {Z} {ZZ} {X} {XX} {w} {W} {D}',
-			test = '2009 3 03 Mar March 5 05 4 Thu Thursday 3 03 15 15 pm 4 04 9 09 3 003 GMT+0000 GMT+00:00 +0000 +00:00 +0000 +00:00 9 09 63'.split(' '),
+		var formatString = '{yy} {M} {MM} {MMM} {MMMM} {d} {dd} {E} {EEE} {EEEE} {h} {hh} {H} {HH} {a} {m} {mm} {s} {ss} {sss} {ssss} {z} {zz} {Z} {ZZ} {X} {XX} {D}',
+			test = '2009 3 03 Mar March 5 05 4 Thu Thursday 3 03 15 15 pm 4 04 9 09 3 003 GMT+0000 GMT+00:00 +0000 +00:00 +0000 +00:00 63'.split(' '),
 			base = new DateTime(2009,2,5,14,4,9,3),
 			result = base.format(formatString).split(' ');
 
@@ -78,9 +74,7 @@ describe('DateTime', function(){
 		assert(/^(\+|\-)[0-9]{2}:[0-9]{2}$/.test(result[24]), 'UTF diff +02:00');
 		assert(/^(\+|\-)[0-9]{4}$/.test(result[25]), 'UTF diff +0200');
 		assert(/^(\+|\-)[0-9]{2}:[0-9]{2}$/.test(result[26]), 'UTF diff +02:00');
-		assert.strictEqual(result[27], test[27], 'week of year');
-		assert.strictEqual(result[28], test[28], 'week of month');
-		assert.strictEqual(result[29], test[29], 'day of year');
+		assert.strictEqual(result[27], test[27], 'day of year');
 	});
 
 	it('locale', function(){
